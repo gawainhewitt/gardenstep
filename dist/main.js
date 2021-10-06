@@ -152,7 +152,8 @@ function welcomeScreen() {
   text("Lazy Afternoons", width/2, height/10 * 2);
   textSize(cnvDimension/20);
   text( "Garden Sequencer", width/10, height/10, (width/10) * 8, (height/10) * 8);
-  text( "Touch screen or click mouse to start", width/2, height/10 * 8);
+  text( "Touch screen or click mouse to start", width/2, height/10 * 7);
+  text( "...on iPhone switch the switch to ON", width/2, height/10 * 8);
 }
 
 function createButtonPositions() {
