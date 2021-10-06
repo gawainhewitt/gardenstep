@@ -22,22 +22,22 @@ for(let i = 0; i < seqRows; i++){
 
 let soundOn = false; // have we instigated Tone.start() yet? (needed to allow sound)
 
-let seqOn, seqOff, seqStep1, seqStep2; // to store images in
+let seqOn, seqOff, seqStep1, seqStep2, sky; // to store images in
 
 let seqWidth;
 let seqHeight;
 
-let one = 'snapeLoop1';
-let two = 'snapeLoop2';
-let three = 'snapeLoop3';
-let four = 'snapeLoop4';
-let five = 'snapeLoop5';
-let six = 'snapeLoop6';
+let one = 'gardenLoop1';
+let two = 'gardenLoop2';
+let three = 'gardenLoop3';
+let four = 'gardenLoop4';
+let five = 'gardenLoop5';
+let six = 'gardenLoop6';
 
 let stepName = new Array;
 
 for(let i = 0; i < seqRows; i++){
-  stepName[i] = `snapeStep${i}`;
+  stepName[i] = `gardenStep${i}`;
 }
 
 let seqPlayers = new Array;
@@ -72,10 +72,11 @@ let inp;
 let myJSON;
 
 function preload() {
-  seqOn = loadImage(`/images/triangleOn.png`);
-  seqOff = loadImage(`/images/triangleOff.png`);
-  seqStep1 = loadImage(`/images/triangleStep1.png`);
-  seqStep2 = loadImage(`/images/triangleStep2.png`);
+  seqOn = loadImage(`/images/bird_on.png`);
+  seqOff = loadImage(`/images/bird.png`);
+  seqStep1 = loadImage(`/images/bird_icon_purple.png`);
+  seqStep2 = loadImage(`/images/bird_icon_yellow.png`);
+  sky = loadImage(`/images/sky.jpg`);
 
   for(let i = 0; i < seqRows; i++){
     seqBuffers[i] = new Tone.ToneAudioBuffer(`/sounds/${stepName[i]}.mp3`)
@@ -148,9 +149,9 @@ function welcomeScreen() {
   background(150); // background is grey (remember 5 is maximum because of the setup of colorMode)
   textSize(cnvDimension/10);
   textAlign(CENTER, CENTER);
-  text("Snape Maltings", width/2, height/10 * 2);
+  text("Lazy Afternoons", width/2, height/10 * 2);
   textSize(cnvDimension/20);
-  text( "Reed Marsh Sequencer", width/10, height/10, (width/10) * 8, (height/10) * 8);
+  text( "Garden Sequencer", width/10, height/10, (width/10) * 8, (height/10) * 8);
   text( "Touch screen or click mouse to start", width/2, height/10 * 8);
 }
 
@@ -192,7 +193,9 @@ function drawSynth(step) { // instead of using the draw function at 60 frames a 
     fill(0);
     text("ok", width/2, height/5*4);
   }else{
-    background(245, 218, 66);
+    // background(245, 218, 66);
+    imageMode(CORNER);
+    image(sky, 0, 0, width, height);
     imageMode(CENTER);
 
     for(let i = 0; i < seqRows; i++){
@@ -225,8 +228,8 @@ function drawSynth(step) { // instead of using the draw function at 60 frames a 
       text(`BPM ${Math.round(Tone.Transport.bpm.value)}`, width/2, (height/3)*2);
     }
   }
-  myJSON = Flatted.stringify(seqSaveSteps);
-  console.log(myJSON);
+  // myJSON = JSON.stringify(seqSaveSteps);
+  // console.log(myJSON);
 }
 
 function copySave() {
