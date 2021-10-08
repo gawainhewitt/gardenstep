@@ -15,9 +15,14 @@ let seqRowIncrement; // defined in setup
 let seqRowPosition; // defined in setup
 let radius; // radius of the buttons for looper and save button
 
-let seqObject = {};
+let seqObject = {}; // object to store the places for each button in
+let seqSaveSteps = {}; // object to store the sequence state in - this is both where the current sequence is, but also can be exported as a JSON file and sent to a server if I like
 for(let i = 0; i < seqRows; i++){
-  seqObject[`row${i}`] = new Array ();
+  seqObject[`row${i}`] = new Array (); // to store the button positions in
+  seqSaveSteps[`row${i}`] = new Array (); // to store the sequence state in
+  for(let j = 0; j < seqSteps; j++){
+    seqSaveSteps[`row${i}`].push(0); // initialise the array to make all steps "off"
+  }
 }
 
 let soundOn = false; // have we instigated Tone.start() yet? (needed to allow sound)
@@ -48,7 +53,7 @@ for(let i = 0; i < seqRows; i++){
 
 let seqBuffers = new Array;
 
-let originalTempo = 20;
+let originalTempo = 100;
 Tone.Transport.bpm.value = originalTempo;
 Tone.Transport.loopEnd.value = "8m";
 console.log(`bpm ${Math.round(Tone.Transport.bpm.value)}`);
@@ -168,8 +173,6 @@ function createButtonPositions() {
       seqObject[`row${i}`].push({
         x: seqStepDistance,
         y: seqRowPosition,
-        state: 0,
-        image: seqOff
       });
       seqStepDistance = seqStepDistance + seqStepIncrement;
     }
@@ -201,13 +204,18 @@ function drawSynth(step) { // instead of using the draw function at 60 frames a 
 
     for(let i = 0; i < seqRows; i++){
       for(let j = 0; j < seqSteps; j++){
-        if((j === step) && (seqObject[`row${i}`][j].state === 0)){ // if this is the current step and the step is "off"
-          image(seqStep1, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then yellow seq for this step
-        }else if((j === step) && (seqObject[`row${i}`][j].state === 1)){ // if this is the current step and the step is "on"
-          image(seqStep2, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then purple seq for this step
-        }
-        else{
-          image(seqObject[`row${i}`][j].image, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // otherwise seq colour reflects step state
+        if(seqSaveSteps[`row${i}`][j] === 0){ // if the step is "off"
+          if(j === step){ //and this is the current step
+            image(seqStep1, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then yellow seq for this step
+          }else{
+            image(seqOff, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then yellow seq for this step
+          }
+        }else if(seqSaveSteps[`row${i}`][j] === 1){ // if the step is "on"
+          if(j === step){ //and this is the current step
+            image(seqStep2, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then purple seq for this step
+          }else{
+            image(seqOn, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then yellow seq for this step
+          }
         }
       }
     }
@@ -229,8 +237,8 @@ function drawSynth(step) { // instead of using the draw function at 60 frames a 
       text(`BPM ${Math.round(Tone.Transport.bpm.value)}`, width/2, (height/3)*2);
     }
   }
-  // myJSON = JSON.stringify(seqSaveSteps);
-  // console.log(myJSON);
+  myJSON = JSON.stringify(seqSaveSteps);
+  console.log(myJSON);
 }
 
 function copySave() {
@@ -349,17 +357,15 @@ function handleClick(e){
 
 function seqPressed(row, step) {
 
-  if(seqObject[`row${row}`][step].state === 0) { // if the synth is not playing that note at the moment
-    seqObject[`row${row}`][step].image = seqOn;
+  if(seqSaveSteps[`row${row}`][step] === 0) { // if the synth is not playing that note at the moment
+    seqSaveSteps[`row${row}`][step] = 1;// change the array to reflect that the note is playing
     drawSynth();
-    seqObject[`row${row}`][step].state = 1; // change the array to reflect that the note is playing
   }
   else { // if the synth is playing that note at the moment
-    seqObject[`row${row}`][step].image = seqOff;
+    seqSaveSteps[`row${row}`][step] = 0;// change the array to reflect that the note is playing
     drawSynth();
-    seqObject[`row${row}`][step].state = 0; // change the array to reflect that the note is playing
   }
-  console.log(`row${row} step ${step} = ${seqObject[`row${row}`][step].state}`);
+  console.log(`row${row} step ${step} = ${seqSaveSteps[`row${row}`][step]}`);
 
 
 }
@@ -376,7 +382,7 @@ function repeat(time) {
   let _step = index % seqSteps;
   drawSynth(_step)
   for(let i = 0; i < seqRows; i++) {
-    if(seqObject[`row${i}`][_step].state === 1) {
+    if(seqSaveSteps[`row${i}`][_step] === 1) {
       seqPlayers[i].start();
     }
   }
@@ -399,27 +405,7 @@ function isMouseInsideText(text, textX, textY) {
 //document.URL is the current url
 var url_ob = new URL(document.URL);
 
-
-let seqSaveSteps = {};
-for(let i = 0; i < seqRows; i++){
-  seqSaveSteps[`row${i}`] = new Array ();
-}
-
-for(let i = 0; i < seqRows; i++){ // setup and initialise the array
-  for(let j = 0; j < seqSteps; j++){
-    seqSaveSteps[`row${i}`].push(0);
-  }
-}
-
-
 function saveSeq() {
-  for(let i = 0; i < seqRows; i++){
-    for(let j = 0; j < seqSteps; j++){
-      seqSaveSteps[`row${i}`][j] = seqObject[`row${i}`][j].state;
-    }
-
-  }
-
   let seqRowsArray = new Array;
   for(let i = 0; i < seqRows; i++){
     seqRowsArray[i] = seqSaveSteps[`row${i}`].join('');
