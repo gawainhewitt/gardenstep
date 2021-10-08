@@ -53,7 +53,7 @@ for(let i = 0; i < seqRows; i++){
 
 let seqBuffers = new Array;
 
-let originalTempo = 100;
+let originalTempo = 20;
 Tone.Transport.bpm.value = originalTempo;
 Tone.Transport.loopEnd.value = "8m";
 console.log(`bpm ${Math.round(Tone.Transport.bpm.value)}`);
