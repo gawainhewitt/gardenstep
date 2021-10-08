@@ -210,7 +210,7 @@ function drawSynth(step) { // instead of using the draw function at 60 frames a 
           }else{
             image(seqOff, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then yellow seq for this step
           }
-        }else if(seqSaveSteps[`row${i}`][j] === 1){ // if the step is "on"
+        }else{ // if the step is "on"
           if(j === step){ //and this is the current step
             image(seqStep2, seqObject[`row${i}`][j].x, seqObject[`row${i}`][j].y, seqWidth, seqHeight); // then purple seq for this step
           }else{
